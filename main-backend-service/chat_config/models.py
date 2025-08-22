@@ -10,5 +10,16 @@ class Chat(models.Model):
     name_generated = models.BooleanField(default=False)  # ✅ Changed to Boolean
     created_At = models.DateTimeField(auto_now_add=True)
     
+    
+    SOURCE_TYPE_CHOICES = [
+        ("file", "File"),
+        ("database_url", "Database URL"),
+    ]
+    
+    source_type = models.CharField(
+        max_length=20,
+        choices=SOURCE_TYPE_CHOICES,
+        default="file"
+    )
     def __str__(self):
         return self.name
