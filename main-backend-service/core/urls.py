@@ -22,4 +22,5 @@ urlpatterns = [
     path('chats/', include('chat_config.urls')),
     path('data/', include('data_config.urls')),
     path('db-connect/', include('db_connection.urls')),
+    path("code-generation/", include("code_generation.urls")),
 ]
