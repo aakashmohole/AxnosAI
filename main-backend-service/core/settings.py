@@ -46,6 +46,11 @@ INSTALLED_APPS = [
     'chat_config',
     'code_generation',
     'code_execution',
+    
+    'db_connection',
+    
+    'rest_framework',
+    
 ]
 
 MIDDLEWARE = [
@@ -104,6 +109,8 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/

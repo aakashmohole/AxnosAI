@@ -21,3 +21,4 @@ def generate_chat_name(prompt: str) -> str:
     title = " ".join([word for word, _ in common]).title()
 
     return title
+
