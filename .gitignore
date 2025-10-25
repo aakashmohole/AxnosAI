@@ -7,8 +7,8 @@ __pycache__/
 *.so
 
 .env
-
-
+.main-venv
+.env-proxy
 # Distribution / packaging
 .Python
 build/
