@@ -48,6 +48,10 @@ INSTALLED_APPS = [
     'code_execution',
     
     'db_connection',
+
+
+    'drf_yasg',
+    'rest_framework',
     
 ]
 
