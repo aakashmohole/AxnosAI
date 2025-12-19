@@ -38,11 +38,11 @@ export class AuthService {
     }
   }
 
-  async login(email: string, password: string, res: FastifyReply) {
+  async login(email: string, userPassword: string, res: FastifyReply) {
     const user = await this.userModel.findOne({ email });
     if (!user) throw new UnauthorizedException('Invalid credentials');
 
-    const valid = await bcrypt.compare(password, user.password);
+    const valid = await bcrypt.compare(userPassword, user.password);
     if (!valid) throw new UnauthorizedException('Invalid credentials');
 
     const accessToken = await this.jwtService.signAsync(
@@ -50,22 +50,25 @@ export class AuthService {
       { secret: process.env.JWT_SECRET, expiresIn: '2d' },
     );
 
-    const refreshToken = await this.jwtService.signAsync(
+    const newRefreshToken = await this.jwtService.signAsync(
       { sub: user._id },
       { secret: process.env.JWT_REFRESH_SECRET, expiresIn: '14d' },
     );
 
-    user.refreshToken = await bcrypt.hash(refreshToken, 10);
+    user.refreshToken = await bcrypt.hash(newRefreshToken, 10);
     await user.save({ validateBeforeSave: false });
 
-    res.setCookie('refreshToken', refreshToken, {
+    res.setCookie('refreshToken', newRefreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'none',
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    return { accessToken };
+    const {password,refreshToken,...userRes} = user.toObject();
+
+
+    return { accessToken,userRes };
   }
 
   async refresh(userId: string, refreshToken: string, res: FastifyReply) {
