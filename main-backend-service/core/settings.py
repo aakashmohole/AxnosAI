@@ -46,6 +46,9 @@ INSTALLED_APPS = [
     'chat_config',
     'code_generation',
     'code_execution',
+    
+    'db_connection',
+    
 ]
 
 MIDDLEWARE = [

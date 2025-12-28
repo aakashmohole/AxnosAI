@@ -1,0 +1,33 @@
+### 1. Create Chat
+POST http://127.0.0.1:8000/chats/
+Content-Type: application/json
+
+{
+  "user_id": 1,
+  "dataset": "http://example.com/myfile.csv"
+}
+
+### 2. Get All Chats
+GET http://127.0.0.1:8000/chats/
+
+### 3. Get Chat Detail
+GET http://127.0.0.1:8000/chats/1/
+
+### 4. Auto Generate Name
+POST http://127.0.0.1:8000/chats/1/generate-name/
+Content-Type: application/json
+
+{
+  "prompt": "This file contains machine learning project data"
+}
+
+### 5. Manually Update Name
+PUT http://127.0.0.1:8000/chats/1/update-name/
+Content-Type: application/json
+
+{
+  "name": "Custom Research Notes"
+}
+
+### 6. Delete Chat
+DELETE http://127.0.0.1:8000/chats/1/
