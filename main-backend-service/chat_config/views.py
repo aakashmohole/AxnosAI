@@ -11,6 +11,7 @@ from .utils.auto_generate_chat_name import generate_chat_name
 from db_connection.utils.pool import get_connection_pool
 from chat_config.utils.supabase_client import supabase
 import pandas as pd
+import numpy as np
 
 
 # ✅ API to auto-generate chat name
@@ -118,6 +119,58 @@ class CreateChatWithDatasetView(APIView):
         }, status = status.HTTP_201_CREATED) 
 
             
+class FetchTablePreviewAPIView(APIView):
+    """
+    Fetch preview data for selected tables
+    (No chat_id needed)
+    """
+
+    def post(self, request):
+        database_url = request.data.get("database_url")
+        tables = request.data.get("tables")
+
+        if not database_url:
+            return Response(
+                {"[MAIN ERR]": "database_url is required"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if not tables or not isinstance(tables, list):
+            return Response(
+                {"[MAIN ERR]": "tables must be a list"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            pool = get_connection_pool("preview", database_url)
+            conn = pool.getconn()
+
+            preview = {}
+
+            for table in tables:
+                query = f'SELECT * FROM "{table}" LIMIT 20'
+                df = pd.read_sql(query, conn)
+
+                # JSON safe
+                df = df.replace({np.nan: None})
+
+                preview[table] = {
+                    "columns": list(df.columns),
+                    "rows": df.to_dict(orient="records")
+                }
+
+            pool.putconn(conn)
+
+            return Response({
+                "preview": preview
+            }, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
 
 class ChatDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Chat.objects.all()

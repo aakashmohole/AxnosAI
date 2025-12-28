@@ -34,8 +34,12 @@ urlpatterns = [
     path('data/', include('data_config.urls')),
     path('db-connect/', include('db_connection.urls')),
 <<<<<<< HEAD
+<<<<<<< HEAD
     path("code-generation/", include("code_generation.urls")),
 =======
+=======
+    path('code-execution/', include('code_execution.urls')),
+>>>>>>> b8ace30 (code exicution backend)
 
 
 
