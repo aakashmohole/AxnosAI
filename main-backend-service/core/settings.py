@@ -54,8 +54,6 @@ INSTALLED_APPS = [
     'drf_yasg',
     'rest_framework',
     
-    'rest_framework',
-    
 ]
 
 MIDDLEWARE = [
@@ -114,8 +112,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
-OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/

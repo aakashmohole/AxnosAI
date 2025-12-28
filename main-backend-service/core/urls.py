@@ -33,13 +33,7 @@ urlpatterns = [
     path('chats/', include('chat_config.urls')),
     path('data/', include('data_config.urls')),
     path('db-connect/', include('db_connection.urls')),
-<<<<<<< HEAD
-<<<<<<< HEAD
     path("code-generation/", include("code_generation.urls")),
-=======
-=======
-    path('code-execution/', include('code_execution.urls')),
->>>>>>> b8ace30 (code exicution backend)
 
 
 
@@ -47,5 +41,5 @@ urlpatterns = [
 
     re_path(r'^swagger/$', schema_view.with_ui('swagger', cache_timeout=0), name='swagger-ui'),
     re_path(r'^redoc/$', schema_view.with_ui('redoc', cache_timeout=0), name='redoc'),
->>>>>>> c182dc6 (single api for crate chat and upload data)
+
 ]

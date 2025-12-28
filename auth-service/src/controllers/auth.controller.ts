@@ -1,5 +1,5 @@
-import { FastifyRequest } from './../../node_modules/fastify/types/request.d';
-import { FastifyReply } from './../../node_modules/fastify/types/reply.d';
+import { FastifyRequest } from 'fastify';
+import { FastifyReply } from 'fastify';
 import {
   Controller,
   Post,
