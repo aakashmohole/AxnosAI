@@ -159,6 +159,10 @@ class FetchTablePreviewAPIView(APIView):
                     "rows": df.to_dict(orient="records")
                 }
 
+                if(preview[table]["rows"] == []):
+                    preview[table]["rows"] = "Table is empty"
+                    
+
             pool.putconn(conn)
 
             return Response({
@@ -171,6 +175,15 @@ class FetchTablePreviewAPIView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
+
+class ListUserChatsView(generics.ListAPIView):
+    serializer_class = ChatSerializer
+
+    def get_queryset(self):
+        user_id = self.request.META.get("HTTP_X_USER_ID")
+        if not user_id:
+            raise PermissionDenied("User not authenticated")
+        return Chat.objects.filter(user_id=user_id).order_by('-created_At')
 
 class ChatDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Chat.objects.all()
