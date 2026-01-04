@@ -95,7 +95,7 @@ class CreateChatWithDatasetView(APIView):
             chat.dataset = database_url
             chat.save()
             
-             # 🔹 Fetch tables preview
+            # 🔹 Fetch tables preview
             pool = get_connection_pool(chat.id, database_url)
             conn = pool.getconn()
             cursor = conn.cursor()
