@@ -85,7 +85,9 @@ class CreateChatWithDatasetView(APIView):
             file_object.seek(0)
             df = pd.read_csv(file_object)
             df = df.fillna("")  # Handle missing values
-            preview = df.head(5).to_dict(orient="records")
+            preview = df.head(50).to_dict(orient="records")
+            chat.preview = preview
+            chat.save()
 
         elif source_type == "database_url":
             database_url = request.data.get("database_url")
@@ -195,3 +197,15 @@ class ChatDetailView(generics.RetrieveUpdateDestroyAPIView):
         if not user_id or str(user_id) != str(obj.user_id):
             raise PermissionDenied("Not allowed")
         return obj
+
+class UpdateTableNameView(APIView):
+    def put(self, request, pk):
+        chat = get_object_or_404(Chat, pk=pk)
+        table_name = request.data.get("table_name")
+        if table_name:
+            chat.table_name = table_name
+            # Note: We do NOT set name_generated = True here
+            # so that the chat can still be auto-renamed on first prompt.
+            chat.save()
+            return Response({"chat_id": chat.id, "table_name": chat.table_name}, status=status.HTTP_200_OK)
+        return Response({"error": "table_name is required"}, status=status.HTTP_400_BAD_REQUEST)

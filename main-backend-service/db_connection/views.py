@@ -56,8 +56,6 @@ class ShowTablesAPIView(APIView):
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         
         
-
-
 class FetchTablesDataAPIView(APIView):
     """
     API to fetch all rows from tables and return as DataFrame JSON
@@ -67,7 +65,9 @@ class FetchTablesDataAPIView(APIView):
         db_url = chat_db.dataset
         table_names = request.data.get("tables", [])
 
+
         if not table_names or not isinstance(table_names, list):
+            print(f"[FETCH ERR] Invalid table_names: {table_names}")
             return Response({"error": "Provide a list of table names"}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
@@ -76,11 +76,23 @@ class FetchTablesDataAPIView(APIView):
             all_data = {}
 
             for table in table_names:
-                query = f'SELECT * FROM "{table}"'  # use quotes to avoid case issues
+                print(f"[FETCH] Fetching table: {table}")
+                query = f'SELECT * FROM "{table}" LIMIT 50'
                 df = pd.read_sql(query, conn)
-                all_data[table] = df.to_dict(orient="records")  # convert DataFrame to list of dicts
+                
+                df = df.where(pd.notnull(df), None)   # fix for JSONField
+
+
+                all_data[table] = df.to_dict(orient="records")
+
+            # Save to Chat preview for caching
+            # chat_db.preview = all_data
+            # chat_db.save(update_fields=["preview"])
 
             pool.putconn(conn)
+            
+
+
             return Response({"data": all_data}, status=status.HTTP_200_OK)
 
         except Exception as e:

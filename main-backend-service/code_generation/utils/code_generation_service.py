@@ -33,7 +33,7 @@ def generate_code_openrouter(data_preview: str, user_operation: str, chosen_mode
             messages=[
                 {
                     "role": "system",
-                    "content": "You are a Python code generator using pandas. Respond only with clean, executable Python code without explanations."
+                    "content": "You are a Python code generator using pandas. Respond only with clean, executable Python code without explanations. Also if user wants normal conversation then respond normally."
                 },
                 {
                     "role": "user",

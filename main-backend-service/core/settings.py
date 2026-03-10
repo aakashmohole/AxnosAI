@@ -18,7 +18,7 @@ import dj_database_url
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Load environment variables
-load_dotenv(os.path.join(BASE_DIR, '.env'))
+load_dotenv(os.path.join(BASE_DIR, '.env'), override=True)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -95,6 +95,9 @@ DATABASES = {
 
 # OpenRouter API configuration
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+OPEN_AI_API_KEY = os.getenv("OPEN_AI_API_KEY")
+HUGGINGFACE_API_TOKEN = os.getenv("HUGGINGFACE_API_TOKEN")
+HF_TRANSCRIPTION_MODEL = os.getenv("HF_TRANSCRIPTION_MODEL", "openai/whisper-large-v3-turbo")
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators

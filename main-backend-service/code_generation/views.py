@@ -11,6 +11,9 @@ from .utils.code_generation_service import generate_code_openrouter
 from data_config.models import Prompt
 from chat_config.models import Chat
 
+from chat_config.utils.auto_generate_chat_name import generate_chat_name
+from db_connection.utils.pool import get_connection_pool
+
 class GenerateCodeView(APIView):
     def post(self, request):
         # Extract required fields from request
@@ -27,10 +30,11 @@ class GenerateCodeView(APIView):
        
         try:
             chat = Chat.objects.get(id=chat_id)
-            dataset_url = chat.dataset
+            dataset_location = chat.dataset # This could be a URL or a DB Connection String
+            source_type = chat.source_type
             
-            if dataset_url.endswith("?"):
-                dataset_url = dataset_url[:-1]  # remove trailing '?' if present
+            if dataset_location.endswith("?"):
+                dataset_location = dataset_location[:-1]  # remove trailing '?' if present
                 
         except Chat.DoesNotExist:
             return Response(
@@ -39,14 +43,27 @@ class GenerateCodeView(APIView):
                 },status=status.HTTP_404_NOT_FOUND,
             )
 
-        # Fetch dataset from the given URL
+        # Fetch dataset preview based on source type
         try:
-            response = requests.get(dataset_url)
-            response.raise_for_status()
-        
-            csv_data = StringIO(response.text)
-            df = pd.read_csv(csv_data)
-            data_preview = df.head(5).to_string()
+            if source_type == "database_url":
+                # For DB, fetch preview from the connected pool and specific table
+                table_name = chat.table_name or chat.name # Prefer table_name, fallback to name
+                pool = get_connection_pool(str(chat.id), dataset_location)
+                conn = pool.getconn()
+                try:
+                    query = f'SELECT * FROM "{table_name}" LIMIT 5'
+                    df = pd.read_sql(query, conn)
+                    data_preview = df.to_string()
+                finally:
+                    pool.putconn(conn)
+            else:
+                # Standard file-based URL fetch
+                response = requests.get(dataset_location)
+                response.raise_for_status()
+            
+                csv_data = StringIO(response.text)
+                df = pd.read_csv(csv_data)
+                data_preview = df.head(5).to_string()
         
         except Exception as e:
             return Response(
@@ -71,9 +88,21 @@ class GenerateCodeView(APIView):
         # Clean output (remove formatting)
         generated_code = generated_code.replace("```python", "").replace("```", "").strip()
 
+        # Automatic Chat Renaming on first prompt
+        new_chat_name = None
+        if not chat.name_generated:
+            try:
+                new_chat_name = generate_chat_name(prompt_text)
+                chat.name = new_chat_name
+                chat.name_generated = True
+                chat.save()
+            except Exception as e:
+                print(f"[RENAME ERR] Failed to auto-generate chat name: {str(e)}")
+
         # Save generated code linked to the Chat
         try:
-            Prompt.objects.create(
+            prompt_obj = Prompt.objects.create(
+                prompt=prompt_text,
                 generated_code=generated_code,
                 chat_id=chat 
             )
@@ -85,9 +114,11 @@ class GenerateCodeView(APIView):
                 },status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
-        # Return the generated code in response
+        # Return the generated code and prompt_id in response
         return Response(
             {
-                "generated_code": generated_code
+                "generated_code": generated_code,
+                "prompt_id": prompt_obj.id,
+                "updated_chat_name": new_chat_name
             },status=status.HTTP_200_OK,
         )

@@ -1,9 +1,22 @@
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import Response
+from fastapi.middleware.cors import CORSMiddleware
 import httpx
 import jwt
 
 app = FastAPI()
+
+# ✅ CORS CONFIG
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 JWT_SECRET = "18YfNx88BNLoNASQR2DItRS8JHn5WErq"  # same as NestJS JWT_ACCESS_SECRET
 JWT_ALGORITHM = "HS256"
@@ -22,7 +35,7 @@ def extract_user_info_from_payload(payload :  dict):
     print("[PROXY]: Extracted user info - user_id:", user_id, "email:", email)
     return user_id, email
 
-@app.api_route("/{full_path:path}", methods=["GET", "POST", "PUT", "DELETE", "PATCH"])
+@app.api_route("/{full_path:path}", methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"])
 async def proxy_to_django(full_path: str, request: Request):
     
     #  Get access token from Authorization header

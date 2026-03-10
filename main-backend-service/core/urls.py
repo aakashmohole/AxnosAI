@@ -34,6 +34,8 @@ urlpatterns = [
     path('data/', include('data_config.urls')),
     path('db-connect/', include('db_connection.urls')),
     path("code-generation/", include("code_generation.urls")),
+    path("code-execution/", include("code_execution.urls")),
+    path("user-input/", include("user_input.urls")),
 
 
 
