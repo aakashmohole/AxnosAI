@@ -13,20 +13,25 @@ AVAILABLE_MODELS = {
 }
 
 
-def generate_code_openrouter(data_preview: str, user_operation: str, chosen_model: str = "mistral") -> Optional[str]:
-    model_id = AVAILABLE_MODELS.get(chosen_model, AVAILABLE_MODELS["mistral"])
 
-    
+def get_openrouter_client():
     api_key = getattr(settings, "OPENROUTER_API_KEY", None)
     if not api_key:
         logger.error("OPENROUTER_API_KEY not found in Django settings.")
         return None
+    return OpenAI(base_url="https://openrouter.ai/api/v1", api_key=api_key)
 
-    client = OpenAI(base_url="https://openrouter.ai/api/v1", api_key=api_key)
+# Initialize client globally to reuse connection pool
+_client = get_openrouter_client()
+
+def generate_code_openrouter(data_preview: str, user_operation: str, chosen_model: str = "mistral") -> Optional[str]:
+    model_id = AVAILABLE_MODELS.get(chosen_model, AVAILABLE_MODELS["mistral"])
+    
+    if not _client:
+        return None
 
     try:
-        
-        completion = client.chat.completions.create(
+        completion = _client.chat.completions.create(
             model=model_id,
             max_tokens=3000,      
             temperature=0.7,      

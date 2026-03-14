@@ -5,6 +5,7 @@ import pandas as pd
 import requests
 from io import StringIO
 import uuid
+from django.core.cache import cache
 
 from .utils.code_generation_service import generate_code_openrouter  
 
