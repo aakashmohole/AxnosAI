@@ -3,12 +3,12 @@ anyio==4.11.0
 asgiref==3.10.0
 certifi==2025.10.5
 cffi==2.0.0
-click==8.3.0
+click>=8.0.0
 collection==0.1.6
 cryptography==46.0.3
 deprecation==2.1.0
 dj-database-url==3.0.1
-Django==5.2.7
+Django>=4.2.0,<4.3.0
 django-rest-framework==0.1.0
 djangorestframework==3.16.1
 dotenv==0.9.9
@@ -24,9 +24,9 @@ inflection==0.5.1
 joblib==1.5.2
 multidict==6.7.0
 nltk==3.9.2
-numpy==2.3.4
+numpy
 packaging==25.0
-pandas==2.3.3
+pandas
 postgrest==2.22.2
 propcache==0.4.1
 psycopg==3.2.12

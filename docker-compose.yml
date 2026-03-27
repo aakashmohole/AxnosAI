@@ -1,0 +1,27 @@
+services:
+  auth-service:
+    build: ./auth-service
+    container_name: axnos-auth-service
+    ports:
+      - "3001:3001"
+    env_file:
+      - ./auth-service/.env
+    restart: unless-stopped
+
+  main-backend-service:
+    build: ./main-backend-service
+    container_name: axnos-main-backend
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./main-backend-service/.env
+    restart: unless-stopped
+
+  proxy-orchestration-server:
+    build: ./proxy-orchestration-server
+    container_name: axnos-proxy-server
+    ports:
+      - "8001:8001"
+    depends_on:
+      - main-backend-service
+    restart: unless-stopped

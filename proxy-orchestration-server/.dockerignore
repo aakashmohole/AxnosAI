@@ -1,0 +1,23 @@
+# Virtual environments
+venv/
+venv2/
+proxvnev/
+env/
+.env
+
+# Cache files
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Git and OS files
+.git/
+.gitignore
+.DS_Store
+
+# Docker files
+Dockerfile
+.dockerignore

@@ -9,9 +9,9 @@ import {
   UnauthorizedException,
   HttpStatus,
 } from '@nestjs/common';
-import { AuthService } from 'src/services/auth.service';
-import { RegisterDto } from 'src/dto/register.dto';
-import { LoginDto } from 'src/dto/login.dto';
+import { AuthService } from '../services/auth.service';
+import { RegisterDto } from '../dto/register.dto';
+import { LoginDto } from '../dto/login.dto';
 import { JwtService } from '@nestjs/jwt';
 
 @Controller('auth')
