@@ -3,7 +3,7 @@ import subprocess
 from typing import Dict, Optional
 
 
-def execute_in_docker(code_to_execute: str, timeout_seconds: int = 60) -> Dict[str, Optional[str]]:
+def execute_in_docker(code_to_execute: str, timeout_seconds: int = 120) -> Dict[str, Optional[str]]:
     os.makedirs("/tmp/docker_outputs", exist_ok=True)
     image_name = "data-sci-executor"
 
@@ -15,13 +15,16 @@ def execute_in_docker(code_to_execute: str, timeout_seconds: int = 60) -> Dict[s
         print("[DOCKER]: Image found, skipping build.")
     except subprocess.CalledProcessError:
         # image not found → build it
-        subprocess.run(
-            ["docker", "build", "-t", image_name, "."],
-            capture_output=True,
-            text=True,
-            check=True,
-        )
-        print("[DOCKER]: Image built successfully.")
+        print("[DOCKER]: Image not found, building 'data-sci-executor' (this may take a minute)...")
+        try:
+            subprocess.run(
+                ["docker", "build", "-t", image_name, "."],
+                check=True,
+            )
+            print("[DOCKER]: Image built successfully.")
+        except subprocess.CalledProcessError as e:
+            print(f"[DOCKER ERR]: Build failed: {str(e)}")
+            return {"output": None, "error": f"Docker build failed: {str(e)}", "files": []}
 
     # 2️⃣ Run container
     docker_command = [
@@ -52,8 +55,10 @@ def execute_in_docker(code_to_execute: str, timeout_seconds: int = 60) -> Dict[s
         return {"output": result.stdout, "error": None, "files": os.listdir("/tmp/docker_outputs/")}
 
     except subprocess.CalledProcessError as e:
+        print(f"[DOCKER ERR]: Execution failed: {e.stderr}")
         return {"output": None, "error": e.stderr, "files": []}
 
     except subprocess.TimeoutExpired:
+        print("[DOCKER ERR]: Execution timed out.")
         return {"output": None, "error": "Execution timed out.", "files": []}
 

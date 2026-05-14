@@ -21,9 +21,10 @@ app.add_middleware(
 JWT_SECRET = "18YfNx88BNLoNASQR2DItRS8JHn5WErq"  # same as NestJS JWT_ACCESS_SECRET
 JWT_ALGORITHM = "HS256"
 
+import os
+
 # Config
-# NESTJS_VALIDATE_URL = "http://localhost:3000/v1/auth/login"  # endpoint to check JWT
-DJANGO_API_URL = "http://localhost:8000"
+DJANGO_API_URL = os.getenv("DJANGO_API_URL", "http://backend:8000")
 
 # Extract user info from payload
 def extract_user_info_from_payload(payload :  dict):
@@ -37,7 +38,16 @@ def extract_user_info_from_payload(payload :  dict):
 
 @app.api_route("/{full_path:path}", methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"])
 async def proxy_to_django(full_path: str, request: Request):
-    
+    # Skip auth for models list
+    if full_path == "code-generation/models/":
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            django_resp = await client.get(f"{DJANGO_API_URL}/{full_path}")
+            return Response(
+                content=django_resp.content,
+                status_code=django_resp.status_code,
+                headers=dict(django_resp.headers),
+            )
+
     #  Get access token from Authorization header
     auth_header = request.headers.get("Authorization")
     if not auth_header or not auth_header.startswith("Bearer "):
@@ -61,7 +71,7 @@ async def proxy_to_django(full_path: str, request: Request):
     
 
      # 3 Forward request to Django
-    async with httpx.AsyncClient(timeout=60.0) as client:
+    async with httpx.AsyncClient(timeout=120.0) as client:
         django_url = f"{DJANGO_API_URL}/{full_path}"
         method = request.method
         headers = dict(request.headers)

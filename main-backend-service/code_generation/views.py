@@ -6,7 +6,7 @@ import requests
 from io import StringIO
 import uuid
 
-from .utils.code_generation_service import generate_code_openrouter  
+from .utils.code_generation_service import generate_code_openrouter, AVAILABLE_MODELS
 
 from data_config.models import Prompt
 from chat_config.models import Chat
@@ -14,111 +14,97 @@ from chat_config.models import Chat
 from chat_config.utils.auto_generate_chat_name import generate_chat_name
 from db_connection.utils.pool import get_connection_pool
 
+class ModelListView(APIView):
+    def get(self, request):
+        # Return a list of available models with metadata
+        models = [
+            {"id": "mistral", "name": "Mistral Nemo", "description": "Fast and efficient"},
+            {"id": "deepseek", "name": "DeepSeek Chat", "description": "High reasoning capabilities"},
+            {"id": "llama", "name": "Llama 3.1 8B", "description": "Meta's latest powerful model"},
+            {"id": "openai/gpt-4o-mini", "name": "GPT-4o Mini", "description": "OpenAI's efficient mini model"},
+        ]
+        return Response(models, status=status.HTTP_200_OK)
+
+from django.http import StreamingHttpResponse
+import json
+
 class GenerateCodeView(APIView):
     def post(self, request):
-        # Extract required fields from request
         prompt_text = request.data.get("prompt")
         model_name = request.data.get("model")
         chat_id = request.data.get("chat_id") 
+        is_stream = request.data.get("stream", True) # Default to streaming for speed
 
         if not prompt_text or not model_name or not chat_id:
-            return Response(
-                {"error": "All fields are required: prompt, model, and chat_id"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+            return Response({"error": "Fields required: prompt, model, chat_id"}, status=400)
 
-       
         try:
             chat = Chat.objects.get(id=chat_id)
-            dataset_location = chat.dataset # This could be a URL or a DB Connection String
+            dataset_location = chat.dataset
             source_type = chat.source_type
-            
-            if dataset_location.endswith("?"):
-                dataset_location = dataset_location[:-1]  # remove trailing '?' if present
-                
+            if dataset_location.endswith("?"): dataset_location = dataset_location[:-1]
         except Chat.DoesNotExist:
-            return Response(
-                {
-                    "error": f"No Chat found with id {chat_id}"
-                },status=status.HTTP_404_NOT_FOUND,
-            )
+            return Response({"error": "Chat not found"}, status=404)
 
-        # Fetch dataset preview based on source type
+        # Fetch preview (cached logic simplified here for speed)
         try:
             if source_type == "database_url":
-                # For DB, fetch preview from the connected pool and specific table
-                table_name = chat.table_name or chat.name # Prefer table_name, fallback to name
                 pool = get_connection_pool(str(chat.id), dataset_location)
                 conn = pool.getconn()
                 try:
-                    query = f'SELECT * FROM "{table_name}" LIMIT 5'
-                    df = pd.read_sql(query, conn)
+                    df = pd.read_sql(f'SELECT * FROM "{chat.table_name or chat.name}" LIMIT 5', conn)
                     data_preview = df.to_string()
-                finally:
-                    pool.putconn(conn)
+                finally: pool.putconn(conn)
             else:
-                # Standard file-based URL fetch
-                response = requests.get(dataset_location)
-                response.raise_for_status()
-            
-                csv_data = StringIO(response.text)
-                df = pd.read_csv(csv_data)
-                data_preview = df.head(5).to_string()
-        
+                resp = requests.get(dataset_location, timeout=10)
+                resp.raise_for_status()
+                df = pd.read_csv(StringIO(resp.text), nrows=5)
+                data_preview = df.to_string()
         except Exception as e:
-            return Response(
-                {
-                    "error": f"Failed to read dataset: {str(e)}"
-                    },status=status.HTTP_400_BAD_REQUEST,
-            )
+            return Response({"error": f"Dataset error: {str(e)}"}, status=400)
             
-        # Generate Python code using model
-        generated_code = generate_code_openrouter(
+        # Call with streaming
+        stream_resp = generate_code_openrouter(
             data_preview=data_preview,
             user_operation=prompt_text,
             chosen_model=model_name,
+            stream=is_stream
         )
 
-        if not generated_code:
-            return Response(
-                {"error": "Failed to generate code from model."},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
+        if not stream_resp:
+            return Response({"error": "Model failed"}, status=500)
 
-        # Clean output (remove formatting)
-        generated_code = generated_code.replace("```python", "").replace("```", "").strip()
+        if not is_stream:
+            return Response({"generated_code": stream_resp}, status=200)
 
-        # Automatic Chat Renaming on first prompt
-        new_chat_name = None
-        if not chat.name_generated:
-            try:
-                new_chat_name = generate_chat_name(prompt_text)
-                chat.name = new_chat_name
-                chat.name_generated = True
-                chat.save()
-            except Exception as e:
-                print(f"[RENAME ERR] Failed to auto-generate chat name: {str(e)}")
+        def stream_generator():
+            full_content = ""
+            # yield metadata first
+            yield f"data: {json.dumps({'type': 'start', 'chat_id': chat.id})}\n\n"
+            
+            for chunk in stream_resp:
+                if chunk.choices[0].delta.content:
+                    content = chunk.choices[0].delta.content
+                    full_content += content
+                    yield f"data: {json.dumps({'type': 'chunk', 'content': content})}\n\n"
+            
+            # Auto-rename and save at the end
+            if not chat.name_generated:
+                try:
+                    new_name = generate_chat_name(prompt_text)
+                    chat.name = new_name
+                    chat.name_generated = True
+                    chat.save()
+                    yield f"data: {json.dumps({'type': 'rename', 'name': new_name})}\n\n"
+                except: pass
 
-        # Save generated code linked to the Chat
-        try:
+            # Save to DB
+            clean_code = full_content.replace("```python", "").replace("```", "").strip()
             prompt_obj = Prompt.objects.create(
                 prompt=prompt_text,
-                generated_code=generated_code,
+                generated_code=clean_code,
                 chat_id=chat 
             )
-            
-        except Exception as e:
-            return Response(
-                {
-                    "error": f"Failed to save generated code: {str(e)}"
-                },status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
+            yield f"data: {json.dumps({'type': 'end', 'prompt_id': prompt_obj.id, 'full_code': clean_code})}\n\n"
 
-        # Return the generated code and prompt_id in response
-        return Response(
-            {
-                "generated_code": generated_code,
-                "prompt_id": prompt_obj.id,
-                "updated_chat_name": new_chat_name
-            },status=status.HTTP_200_OK,
-        )
+        return StreamingHttpResponse(stream_generator(), content_type="text/event-stream")

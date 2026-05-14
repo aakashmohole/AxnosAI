@@ -1,27 +1,47 @@
-services:
-  auth-service:
-    build: ./auth-service
-    container_name: axnos-auth-service
-    ports:
-      - "3001:3001"
-    env_file:
-      - ./auth-service/.env
-    restart: unless-stopped
+version: '3.8'
 
-  main-backend-service:
+services:
+  backend:
     build: ./main-backend-service
-    container_name: axnos-main-backend
     ports:
       - "8000:8000"
-    env_file:
-      - ./main-backend-service/.env
-    restart: unless-stopped
+    volumes:
+      - ./main-backend-service:/app
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: always
 
-  proxy-orchestration-server:
+  proxy:
     build: ./proxy-orchestration-server
-    container_name: axnos-proxy-server
     ports:
       - "8001:8001"
+    volumes:
+      - ./proxy-orchestration-server:/app
+    environment:
+      - PYTHONUNBUFFERED=1
     depends_on:
-      - main-backend-service
-    restart: unless-stopped
+      - backend
+    restart: always
+
+  auth:
+    build: ./auth-service
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./auth-service:/usr/src/app
+      - /usr/src/app/node_modules
+    restart: always
+
+  frontend:
+    build: ../Axnos-UI
+    ports:
+      - "3000:3000"
+    volumes:
+      - ../Axnos-UI:/app
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      - proxy
+      - auth
+    restart: always
