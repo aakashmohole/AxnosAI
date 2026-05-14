@@ -5,7 +5,7 @@ from typing import Dict, Optional
 
 def execute_in_docker(code_to_execute: str, timeout_seconds: int = 120) -> Dict[str, Optional[str]]:
     os.makedirs("/tmp/docker_outputs", exist_ok=True)
-    image_name = "data-sci-executor"
+    image_name = "aakashmohole/data-sci-executor"
 
     # 1️⃣ Build image (only if not exists)
     build_cmd = ["docker", "image", "inspect", image_name]

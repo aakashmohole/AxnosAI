@@ -3,6 +3,7 @@ version: '3.8'
 services:
   backend:
     build: ./main-backend-service
+    image: aakashmohole/axnos-backend:latest
     ports:
       - "8000:8000"
     volumes:
@@ -15,6 +16,7 @@ services:
 
   proxy:
     build: ./proxy-orchestration-server
+    image: aakashmohole/axnos-proxy:latest
     ports:
       - "8001:8001"
     volumes:
@@ -27,6 +29,7 @@ services:
 
   auth:
     build: ./auth-service
+    image: aakashmohole/axnos-auth:latest
     ports:
       - "3001:3001"
     volumes:
@@ -36,6 +39,7 @@ services:
 
   frontend:
     build: ../Axnos-UI
+    image: aakashmohole/axnos-frontend:latest
     ports:
       - "3000:3000"
     volumes:

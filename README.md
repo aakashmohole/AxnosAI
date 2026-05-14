@@ -1,207 +1,135 @@
-# AxnosAI
+# AxnosAI - Intelligent Data Copilot 🚀
 
-AxnosAI is an AI-powered data exploration chatbot that allows users to interact with datasets using natural language. It enables seamless analysis of structured and semi-structured data such as CSV, Excel, JSON, and PDF files by translating user queries into intelligent data operations.
-
----
-
-## 🚀 Features
-
-- Natural language chatbot for data analysis  
-- Supports CSV, Excel, JSON, and PDF file formats  
-- Converts user questions into Pandas-based data operations  
-- Fast and interactive data insights  
-- Modular microservices architecture  
-- Secure authentication and request orchestration  
-- Clean and responsive user interface  
+AxnosAI is a next-generation, AI-powered data exploration platform that allows users to interact with their datasets using natural language. It translates complex user queries into intelligent data operations, providing instant insights through a modular microservices architecture.
 
 ---
 
-## 📁 Project Structure
+## 🌟 Key Features
 
+- **Natural Language Data Analysis**: Chat with your data as if you're talking to a data scientist.
+- **Multi-Format Support**: Seamlessly handle CSV, Excel, JSON, and PDF files.
+- **Database Connectivity**: Connect directly to SQL databases for real-time analysis.
+- **Code Generation & Execution**: Automatically generates Pandas code and executes it in secure, isolated Docker containers.
+- **Multi-LLM Support**: Powered by OpenRouter, allowing you to choose between Mistral, DeepSeek, Llama 3.1, and GPT-4o Mini.
+- **Interactive UI**: A sleek, responsive dashboard built with Next.js and Tailwind CSS.
 
-Frontend
-```
-├── 📁 app
-│   ├── 📁 auth
-│   │   └── 📄 page.tsx
-│   ├── 📁 dashboard
-│   │   └── 📄 page.tsx
-│   ├── 📄 favicon.ico
-│   ├── 🎨 globals.css
-│   ├── 📄 layout.tsx
-│   └── 📄 page.tsx
-├── 📁 components
-│   └── 📄 AuthPage.tsx
-├── 📁 context
-│   └── 📄 AuthContext.tsx
-├── 📁 lib
-│   └── 📄 api.ts
-├── 📁 middleware
-│   └── 📄 middleware.ts
-├── 📁 public
-│   ├── 🖼️ file.svg
-│   ├── 🖼️ globe.svg
-│   ├── 🖼️ next.svg
-│   ├── 🖼️ vercel.svg
-│   └── 🖼️ window.svg
-├── ⚙️ .gitignore
-├── 📝 README.md
-├── 📄 eslint.config.mjs
-├── 📄 next.config.ts
-├── ⚙️ package-lock.json
-├── ⚙️ package.json
-├── 📄 postcss.config.mjs
-└── ⚙️ tsconfig.json
+---
+
+## 📂 Project Structure
+
+```text
+AxnosAI/
+├── auth-service/                # NestJS authentication service
+├── main-backend-service/        # Django core logic & chat management
+│   ├── chat_config/             # Chat history & naming logic
+│   ├── code_execution/          # Docker-in-Docker execution logic
+│   ├── code_generation/         # OpenRouter LLM integration
+│   ├── core/                    # Django settings & URL routing
+│   └── data_config/             # Database & Supabase configurations
+├── proxy-orchestration-server/  # FastAPI request router
+├── Axnos-UI/ (External)         # Next.js frontend application
+└── docker-compose.yml           # Full stack orchestration
 ```
 
-Backend
-```
-├── 📁 AXNOSAI
-│   ├── 🖼️ 1.png
-│   └── 🖼️ 2.png
-├── 📁 auth-service
-│   ├── 📁 src
-│   │   ├── 📁 controllers
-│   │   │   └── 📄 auth.controller.ts
-│   │   ├── 📁 dto
-│   │   │   ├── 📄 login.dto.ts
-│   │   │   └── 📄 register.dto.ts
-│   │   ├── 📁 schemas
-│   │   │   └── 📄 user.schema.ts
-│   │   ├── 📁 services
-│   │   │   └── 📄 auth.service.ts
-│   │   ├── 📄 app.controller.spec.ts
-│   │   ├── 📄 app.controller.ts
-│   │   ├── 📄 app.module.ts
-│   │   ├── 📄 app.service.ts
-│   │   └── 📄 main.ts
-│   ├── 📁 test
-│   │   ├── 📄 app.e2e-spec.ts
-│   │   └── ⚙️ jest-e2e.json
-│   ├── ⚙️ .gitignore
-│   ├── ⚙️ .prettierrc
-│   ├── 📝 README.md
-│   ├── 📄 eslint.config.mjs
-│   ├── ⚙️ nest-cli.json
-│   ├── ⚙️ package-lock.json
-│   ├── ⚙️ package.json
-│   └── ⚙️ tsconfig.json
-├── 📁 main-backend-service
-│   ├── 📁 chat_config
-│   │   ├── 📁 migrations
-│   │   │   ├── 🐍 0001_initial.py
-│   │   │   ├── 🐍 0002_chat_name_generated.py
-│   │   │   ├── 🐍 0003_chat_source_type.py
-│   │   │   ├── 🐍 0004_alter_chat_dataset.py
-│   │   │   └── 🐍 __init__.py
-│   │   ├── 📁 utils
-│   │   │   └── 🐍 auto_generate_chat_name.py
-│   │   ├── 🐍 __init__.py
-│   │   ├── 🐍 admin.py
-│   │   ├── 🐍 apps.py
-│   │   ├── 🐍 models.py
-│   │   ├── 🐍 serializers.py
-│   │   ├── 🐍 tests.py
-│   │   ├── 🐍 urls.py
-│   │   └── 🐍 views.py
-│   ├── 📁 code_execution
-│   │   ├── 📁 migrations
-│   │   │   └── 🐍 __init__.py
-│   │   ├── 🐍 __init__.py
-│   │   ├── 🐍 admin.py
-│   │   ├── 🐍 apps.py
-│   │   ├── 🐍 models.py
-│   │   ├── 🐍 tests.py
-│   │   └── 🐍 views.py
-│   ├── 📁 code_generation
-│   │   ├── 📁 migrations
-│   │   │   └── 🐍 __init__.py
-│   │   ├── 📁 utils
-│   │   │   └── 🐍 code_generation_service.py
-│   │   ├── 🐍 __init__.py
-│   │   ├── 🐍 admin.py
-│   │   ├── 🐍 apps.py
-│   │   ├── 🐍 models.py
-│   │   ├── 🐍 tests.py
-│   │   ├── 🐍 urls.py
-│   │   └── 🐍 views.py
-│   ├── 📁 core
-│   │   ├── 🐍 __init__.py
-│   │   ├── 🐍 asgi.py
-│   │   ├── 🐍 settings.py
-│   │   ├── 🐍 urls.py
-│   │   └── 🐍 wsgi.py
-│   ├── 📁 data_config
-│   │   ├── 📁 migrations
-│   │   │   ├── 🐍 0001_initial.py
-│   │   │   └── 🐍 __init__.py
-│   │   ├── 📁 utils
-│   │   │   └── 🐍 supabase_client.py
-│   │   ├── 🐍 __init__.py
-│   │   ├── 🐍 admin.py
-│   │   ├── 🐍 apps.py
-│   │   ├── 🐍 models.py
-│   │   ├── 🐍 serializers.py
-│   │   ├── 🐍 tests.py
-│   │   ├── 🐍 urls.py
-│   │   └── 🐍 views.py
-│   ├── 📁 db_connection
-│   │   ├── 📁 migrations
-│   │   │   └── 🐍 __init__.py
-│   │   ├── 📁 utils
-│   │   │   └── 🐍 pool.py
-│   │   ├── 🐍 __init__.py
-│   │   ├── 🐍 admin.py
-│   │   ├── 🐍 apps.py
-│   │   ├── 🐍 models.py
-│   │   ├── 🐍 tests.py
-│   │   ├── 🐍 urls.py
-│   │   └── 🐍 views.py
-│   ├── 📁 main-venv
-│   │   ├── 📁 Scripts
-│   │   │   ├── 📄 Activate.ps1
-│   │   │   ├── 📄 activate
-│   │   │   ├── 📄 activate.bat
-│   │   │   ├── ⚙️ build_sync.exe
-│   │   │   ├── 📄 deactivate.bat
-│   │   │   ├── ⚙️ django-admin.exe
-│   │   │   ├── ⚙️ dotenv.exe
-│   │   │   ├── ⚙️ f2py.exe
-│   │   │   ├── ⚙️ httpx.exe
-│   │   │   ├── ⚙️ nltk.exe
-│   │   │   ├── ⚙️ normalizer.exe
-│   │   │   ├── ⚙️ numpy-config.exe
-│   │   │   ├── ⚙️ pip.exe
-│   │   │   ├── ⚙️ pip3.10.exe
-│   │   │   ├── ⚙️ pip3.exe
-│   │   │   ├── ⚙️ python.exe
-│   │   │   ├── ⚙️ pythonw.exe
-│   │   │   ├── ⚙️ sqlformat.exe
-│   │   │   ├── ⚙️ tests.exe
-│   │   │   ├── ⚙️ tqdm.exe
-│   │   │   └── ⚙️ websockets.exe
-│   │   └── 📄 pyvenv.cfg
-│   ├── 📁 user_input
-│   │   ├── 📁 migrations
-│   │   │   └── 🐍 __init__.py
-│   │   ├── 🐍 __init__.py
-│   │   ├── 🐍 admin.py
-│   │   ├── 🐍 apps.py
-│   │   ├── 🐍 models.py
-│   │   ├── 🐍 tests.py
-│   │   └── 🐍 views.py
-│   └── 🐍 manage.py
-├── 📁 proxy-orchestration-server
-│   ├── 📁 env-proxy
-│   │   └── 📄 pyvenv.cfg
-│   ├── 📝 README.md
-│   ├── 🐍 main.py
-│   └── 📄 requirements.txt
-├── ⚙️ .gitignore
-├── 📕 Axnos_Synopsis_Final_End.pdf
-├── 📝 README.md
-└── 📄 api.http
+---
+
+## 🔄 Information Flow
+
+The following diagram illustrates how a user query is processed through the AxnosAI ecosystem:
+
+```mermaid
+graph TD
+    User((User)) -->|Query| Frontend[Next.js Frontend]
+    Frontend -->|Auth Request| Auth[NestJS Auth Service]
+    Auth -->|JWT Token| Frontend
+    Frontend -->|Authorized Query| Proxy[FastAPI Proxy]
+    Proxy -->|Route Request| Backend[Django Backend]
+    Backend -->|Data Preview| LLM[OpenRouter / LLM]
+    LLM -->|Generated Code| Backend
+    Backend -->|Python Code| Executor[Docker Executor]
+    Executor -->|Execution Result| Backend
+    Backend -->|Final Response| Proxy
+    Proxy -->|Stream Results| Frontend
+    Frontend -->|Insights/Plots| User
 ```
 
+---
 
+## 🏗 Microservices Architecture
 
+AxnosAI is built with a scalable microservices pattern:
+
+1. **Frontend (Next.js)**: The user interface where users upload files, connect databases, and chat.
+2. **Auth Service (NestJS)**: Handles secure user authentication and JWT management.
+3. **Proxy/Orchestration (FastAPI)**: Routes requests between the frontend and various backend services.
+4. **Main Backend (Django)**: The core logic for chat management, dataset handling, and code generation.
+5. **Code Executor (Docker-in-Docker)**: A specialized service that spawns isolated containers to run generated Python code safely.
+
+---
+
+## 🐳 Docker Hub Images
+
+All AxnosAI components are containerized and available on Docker Hub under the username `aakashmohole`.
+
+### Pulling the Images
+You can pull the individual service images using the following commands:
+
+```bash
+docker pull aakashmohole/axnos-frontend:latest
+docker pull aakashmohole/axnos-backend:latest
+docker pull aakashmohole/axnos-auth:latest
+docker pull aakashmohole/axnos-proxy:latest
+docker pull aakashmohole/data-sci-executor:latest
+```
+
+---
+
+## 🚀 Quick Start with Docker Compose
+
+The easiest way to run the entire stack is using `docker-compose`.
+
+### 1. Prerequisites
+- Docker and Docker Compose installed.
+- An [OpenRouter API Key](https://openrouter.ai/).
+
+### 2. Setup Environment
+Create a `.env` file in the `main-backend-service` directory:
+```env
+OPENROUTER_API_KEY=your_api_key_here
+DATABASE_URL=your_postgres_url
+SUPABASE_URL=your_supabase_url
+SUPABASE_KEY=your_supabase_key
+```
+
+### 3. Run the Application
+```bash
+docker-compose up -d
+```
+Access the application at `http://localhost:3000`.
+
+---
+
+## 🧠 LLM Capabilities
+
+AxnosAI uses **OpenRouter** as an intelligent gateway, providing access to multiple models:
+- **Mistral Nemo**: Balanced speed and performance.
+- **DeepSeek Chat**: High-reasoning capabilities for complex logic.
+- **Llama 3.1 8B**: Meta's state-of-the-art open-source model.
+- **GPT-4o Mini**: OpenAI's efficient and fast model.
+
+Users can switch between these models directly from the chat interface to find the best fit for their analysis.
+
+---
+
+## 🛠 Tech Stack
+
+- **Frontend**: Next.js 14, Tailwind CSS, Framer Motion, Lucide React.
+- **Backend**: Django (Python), FastAPI, NestJS (Node.js).
+- **Database**: PostgreSQL (Neon), Supabase.
+- **Containerization**: Docker, Docker Compose.
+- **LLM Gateway**: OpenRouter.
+
+---
+
+## 📝 License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
