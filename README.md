@@ -4,6 +4,9 @@ AxnosAI is a next-generation, AI-powered data exploration platform that allows u
 
 ---
 
+> [!TIP]
+> This is the backend repository. For Frontend, with distributed components visit the [AxnosAI UI Frontend](https://github.com/shreyashap/Axnos-UI).
+
 ## 🌟 Key Features
 
 - **Natural Language Data Analysis**: Chat with your data as if you're talking to a data scientist.
@@ -32,7 +35,6 @@ AxnosAI/
 ```
 
 
-## You can accsess frontend repo from - [AxnosAI UI](https://github.com/shreyashap/Axnos-UI)
 ---
 
 ## 🔄 Information Flow
