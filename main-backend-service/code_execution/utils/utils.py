@@ -18,7 +18,7 @@ def execute_in_docker(code_to_execute: str, timeout_seconds: int = 120) -> Dict[
         print("[DOCKER]: Image not found, building 'data-sci-executor' (this may take a minute)...")
         try:
             subprocess.run(
-                ["docker", "build", "-t", image_name, "."],
+                ["docker", "build", "-t", image_name, "-f", "code_execution/Dockerfile", "code_execution/"],
                 check=True,
             )
             print("[DOCKER]: Image built successfully.")

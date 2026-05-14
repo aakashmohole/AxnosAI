@@ -8,6 +8,7 @@ services:
     volumes:
       - ./main-backend-service:/app
       - /var/run/docker.sock:/var/run/docker.sock
+      - /tmp:/tmp
     environment:
       - PYTHONUNBUFFERED=1
     restart: always
