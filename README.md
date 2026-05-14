@@ -31,6 +31,8 @@ AxnosAI/
 └── docker-compose.yml           # Full stack orchestration
 ```
 
+
+## You can accsess frontend repo from - [AxnosAI UI](https://github.com/shreyashap/Axnos-UI)
 ---
 
 ## 🔄 Information Flow
