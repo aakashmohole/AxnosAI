@@ -10,7 +10,7 @@ app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "https://axnos-ui.vercel.app/",
+        "http://15.206.116.230:3000/",
     ],
     allow_credentials=True,
     allow_methods=["*"],
