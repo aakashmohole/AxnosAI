@@ -13,7 +13,8 @@ async function bootstrap() {
     AppModule,
     new FastifyAdapter(),
   );
-  const frontendURL = process.env.FRONTEND_URL;
+  const frontendURL = process.env.FRONTEND_URL as string;
+
   await app.register(fastifyCookie);
   app.use(cookieParser());
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
